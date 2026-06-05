@@ -1,0 +1,23 @@
+{
+  "name": "Giftaro — One great gift",
+  "short_name": "Giftaro",
+  "description": "Skip the pile of stuff. Get one great gift. Name your gift, share the link, everyone chips in.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#fafafa",
+  "theme_color": "#fafafa",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "any",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

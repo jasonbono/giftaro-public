@@ -1,0 +1,450 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --font-sans: var(--font-geist);
+  --font-pixel: var(--font-silkscreen);
+
+  --color-brand: #0F9D58;
+  --color-brand-dark: #0B8A4B;
+  --color-brand-glow: #14B368;
+  --color-brand-blue: #4285F4;
+  --color-brand-blue-dark: #3367D6;
+
+  --color-surface-base: #fafafa;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #f4f2ee;
+
+  --color-ink-primary: #141210;
+  --color-ink-secondary: #4a4641;
+  --color-ink-muted: #8a847c;
+  --color-ink-faint: #bab5ae;
+
+  --color-hairline: rgba(24, 20, 15, 0.06);
+  --color-hairline-strong: rgba(24, 20, 15, 0.10);
+
+  --shadow-hairline: 0 1px 0 rgba(16, 24, 40, 0.04), 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-soft: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -8px rgba(16, 24, 40, 0.08);
+  --shadow-floating: 0 2px 4px rgba(16, 24, 40, 0.05), 0 24px 48px -16px rgba(16, 24, 40, 0.14);
+  --shadow-brand-glow: 0 2px 4px rgba(15, 157, 88, 0.12), 0 12px 28px -8px rgba(15, 157, 88, 0.22);
+
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --duration-quick: 140ms;
+  --duration-base: 220ms;
+}
+
+body {
+  background-color: var(--color-surface-base);
+}
+
+/*
+ * Grain texture overlay — the old version applied a full-viewport
+ * <feTurbulence> filter, which iOS Safari has to software-rasterize on
+ * every compositing pass, tanking scroll FPS. This version bakes the same
+ * fractalNoise into a 200×200 tile, serves it as a data-URL background,
+ * and lets the GPU tile it infinitely with no per-frame filter work.
+ * stitchTiles="stitch" keeps the tile seams invisible.
+ */
+.grain-overlay {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/*
+ * Grain texture overlay — the old version applied a full-viewport
+ * <feTurbulence> filter, which iOS Safari has to software-rasterize on
+ * every compositing pass, tanking scroll FPS. This version bakes the same
+ * fractalNoise into a 200×200 tile, serves it as a data-URL background,
+ * and lets the GPU tile it infinitely with no per-frame filter work.
+ * stitchTiles="stitch" keeps the tile seams invisible.
+ */
+.grain-overlay {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+@keyframes glow-breathe {
+  0% { opacity: 0.6; transform: translate(-50%, -55%) scale(1); }
+  100% { opacity: 1; transform: translate(-50%, -55%) scale(1.1); }
+}
+
+@keyframes card-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px) rotate(var(--card-rotation, 0deg));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(var(--card-rotation, 0deg));
+  }
+}
+
+@keyframes card-sway {
+  0%, 100% { transform: rotate(var(--card-rotation, 0deg)); }
+  25% { transform: rotate(calc(var(--card-rotation, 0deg) + 2deg)); }
+  75% { transform: rotate(calc(var(--card-rotation, 0deg) - 2deg)); }
+}
+
+@keyframes pill-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/*
+ * cta-float — box-shadow was expensive to animate (forces CPU repaint every
+ * frame). filter: drop-shadow() composites on the GPU. On a solid rounded
+ * button the two read the same visually; drop-shadow traces the alpha
+ * shape, box-shadow traces the border-box, and for opaque rounded rects
+ * that's indistinguishable.
+ */
+@keyframes cta-float {
+  0%, 87%, 100% { transform: translateY(0); filter: drop-shadow(0 4px 10px rgba(15, 157, 88, 0.22)); }
+  25%, 62% { transform: translateY(-3px); filter: drop-shadow(0 10px 18px rgba(15, 157, 88, 0.28)); }
+}
+
+@keyframes cta-gift-press {
+  0%, 37%, 50%, 100% { transform: scale(1); }
+  44% { transform: scale(0.90) translateY(2px); }
+}
+
+@keyframes bank-linked-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bank-linked-slide-in {
+  0% { opacity: 0; transform: translateY(-6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes trust-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes flow-dot {
+  0% { left: 0; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { left: calc(100% - 6px); opacity: 0; }
+}
+
+/*
+ * progress-shimmer — the old keyframes animated background-position on a
+ * 200%-wide gradient, which forces a full repaint of the fill every frame.
+ * The new version keeps a static gold base and slides a transparent-edged
+ * highlight pulse across via transform, which is GPU-composited.
+ */
+@keyframes progress-shimmer {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gift-rise-and-roll {
+  0% { opacity: 0; transform: translateY(32px) rotate(0deg) scale(0.85); }
+  100% { opacity: 1; transform: translateY(0) rotate(360deg) scale(1); }
+}
+
+@keyframes sheet-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes sheet-slide-up {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.progress-shimmer {
+  background: linear-gradient(90deg, #6366F1, #A855F7, #EC4899, #F97316, #FBBF24, #EAB308) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(253, 230, 138, 0.75) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: progress-shimmer 2s ease-in-out infinite;
+  will-change: transform;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /*
+   * The demo above the "Skip the pile" CTA explains the whole product in
+   * motion. With motion suppressed, snap it to the finished/funded state
+   * instead of leaving an empty card.
+   */
+  [data-play] .demo-bike { filter: grayscale(0) brightness(1) blur(0) !important; }
+  [data-play] .demo-reveal { opacity: 1 !important; }
+  [data-play] .demo-progress { width: 100% !important; background: linear-gradient(90deg, #6366F1, #A855F7, #EC4899, #F97316, #FBBF24, #EAB308) !important; }
+  [data-play] .demo-progress-shimmer { opacity: 0 !important; }
+  [data-play] .demo-chip { opacity: 1 !important; transform: none !important; }
+  [data-play] .demo-funded-badge { opacity: 1 !important; transform: none !important; }
+  [data-play] .hiw-num-4 { background: #EAB308 !important; color: #78350F !important; box-shadow: 0 4px 12px -2px rgba(234, 179, 8, 0.55) !important; transform: scale(1.12) !important; }
+  [data-play] .hiw-text-4 { color: rgb(24 24 27) !important; opacity: 1 !important; }
+}
+
+/* ────────────────────────────────────────────────────────────────
+ * Landing-page "How it works" demo animation.
+ * One 6-second loop, four stages. All animations paused by default
+ * and gated on the container's [data-play="play"] attribute so the
+ * loop only spins when the section is on-screen.
+ * ──────────────────────────────────────────────────────────────── */
+
+/*
+ * Card demo timings are now synced to the LabelStrip's 6s cycle:
+ * the bar stays empty through steps 1 & 2 (0-50%), fills fast during
+ * step 3 (50-63%) as three chips land, then holds fully funded through
+ * step 4 (63-95%) before resetting.
+ */
+
+@keyframes demo-progress {
+  0%, 37.86% { width: 0%; background: linear-gradient(90deg, #4285F4, #818CF8); }
+  41.73% { width: 33%; background: linear-gradient(90deg, #4285F4, #6366F1, #A855F7, #EC4899); }
+  44.82% { width: 66%; background: linear-gradient(90deg, #6366F1, #A855F7, #EC4899, #F97316); }
+  48.68% { width: 100%; background: linear-gradient(90deg, #6366F1, #A855F7, #EC4899, #F97316, #FBBF24, #EAB308); }
+  93.11% { width: 100%; background: linear-gradient(90deg, #6366F1, #A855F7, #EC4899, #F97316, #FBBF24, #EAB308); }
+  95.84%, 100% { width: 0%; background: linear-gradient(90deg, #4285F4, #818CF8); }
+}
+
+@keyframes demo-bike-grayscale {
+  0%, 16.10% { filter: grayscale(1) brightness(0.88) blur(14px); }
+  19.32%, 94.22% { filter: grayscale(0) brightness(1) blur(0); }
+  100% { filter: grayscale(1) brightness(0.88) blur(14px); }
+}
+
+@keyframes demo-reveal {
+  0%, 16.10% { opacity: 0; }
+  19.32%, 94.22% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes demo-shimmer-fade {
+  0%, 47.91% { opacity: 0; }
+  52.84%, 91.68% { opacity: 1; }
+  94.45%, 100% { opacity: 0; }
+}
+
+@keyframes demo-chip-1 {
+  0%, 37.86% { opacity: 0; transform: translateY(6px) scale(0.97); }
+  40.18% { opacity: 1; transform: translateY(-1px) scale(1.01); }
+  41.73%, 91.68% { opacity: 1; transform: translateY(0) scale(1); }
+  95.84%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+}
+
+@keyframes demo-chip-2 {
+  0%, 42.50% { opacity: 0; transform: translateY(6px) scale(0.97); }
+  44.82% { opacity: 1; transform: translateY(-1px) scale(1.01); }
+  46.36%, 91.68% { opacity: 1; transform: translateY(0) scale(1); }
+  95.84%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+}
+
+@keyframes demo-chip-3 {
+  0%, 46.36% { opacity: 0; transform: translateY(6px) scale(0.97); }
+  48.68% { opacity: 1; transform: translateY(-1px) scale(1.01); }
+  51.46%, 91.68% { opacity: 1; transform: translateY(0) scale(1); }
+  95.84%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+}
+
+@keyframes demo-badge {
+  0%, 62.55% { opacity: 0; transform: translateY(120%); }
+  68.10% { opacity: 1; transform: translateY(-8%); }
+  73.65%, 91.68% { opacity: 1; transform: translateY(0); }
+  95.84%, 100% { opacity: 0; transform: translateY(120%); }
+}
+
+/* ────────────────────────────────────────────────────────────────
+ * How-it-works LabelStrip step-highlight animation.
+ * Independent 4s loop: each of the 4 numbered circles lights up in
+ * sequence (brand fill + white text + gentle scale), 1 second per
+ * step. A thin ring gives the resting circles a soft, polished edge.
+ * ──────────────────────────────────────────────────────────────── */
+
+/*
+ * Timing: 6s loop, 1.5s per step.
+ * Each "on" window is ~1s (16.67% of cycle) with ~300ms fades on each
+ * side. Adjacent steps cross-fade: step 1's fade-out (17-21%) overlaps
+ * step 2's fade-in (21-25%), so the strip breathes rather than
+ * flashing.
+ */
+
+/*
+ * Active colors follow the progress-bar palette — each step's "lit" state
+ * is where the money bar would visually be at that point of funding:
+ *   step 1 = empty/starting     → #4285F4 blue
+ *   step 2 = gathering          → #A855F7 purple
+ *   step 3 = nearly there       → #EC4899 pink
+ *   step 4 = funded / celebrate → #EAB308 gold
+ */
+
+@keyframes hiw-num-1 {
+  0%, 12.88% { background-color: #4285F4; color: #fff; box-shadow: 0 4px 12px -2px rgba(66, 133, 244, 0.5); transform: scale(1.12); }
+  16.10%, 94.22% { background-color: #fff; color: rgb(82 82 91); box-shadow: inset 0 0 0 1px rgb(228 228 231); transform: scale(1); }
+  100% { background-color: #4285F4; color: #fff; box-shadow: 0 4px 12px -2px rgba(66, 133, 244, 0.5); transform: scale(1.12); }
+}
+@keyframes hiw-num-2 {
+  0%, 16.10% { background-color: #fff; color: rgb(82 82 91); box-shadow: inset 0 0 0 1px rgb(228 228 231); transform: scale(1); }
+  19.32%, 32.20% { background-color: #A855F7; color: #fff; box-shadow: 0 4px 12px -2px rgba(168, 85, 247, 0.5); transform: scale(1.12); }
+  35.41%, 100% { background-color: #fff; color: rgb(82 82 91); box-shadow: inset 0 0 0 1px rgb(228 228 231); transform: scale(1); }
+}
+@keyframes hiw-num-3 {
+  0%, 35.41% { background-color: #fff; color: rgb(82 82 91); box-shadow: inset 0 0 0 1px rgb(228 228 231); transform: scale(1); }
+  38.64%, 53.77% { background-color: #EC4899; color: #fff; box-shadow: 0 4px 12px -2px rgba(236, 72, 153, 0.5); transform: scale(1.12); }
+  59.54%, 100% { background-color: #fff; color: rgb(82 82 91); box-shadow: inset 0 0 0 1px rgb(228 228 231); transform: scale(1); }
+}
+@keyframes hiw-num-4 {
+  0%, 59.54% { background-color: #fff; color: rgb(82 82 91); box-shadow: inset 0 0 0 1px rgb(228 228 231); transform: scale(1); }
+  65.33%, 88.45% { background-color: #EAB308; color: #78350F; box-shadow: 0 4px 12px -2px rgba(234, 179, 8, 0.55); transform: scale(1.12); }
+  94.22%, 100% { background-color: #fff; color: rgb(82 82 91); box-shadow: inset 0 0 0 1px rgb(228 228 231); transform: scale(1); }
+}
+
+@keyframes hiw-text-1 {
+  0%, 12.88% { color: rgb(24 24 27); opacity: 1; }
+  16.10%, 94.22% { color: rgb(113 113 122); opacity: 0.75; }
+  100% { color: rgb(24 24 27); opacity: 1; }
+}
+@keyframes hiw-text-2 {
+  0%, 16.10% { color: rgb(113 113 122); opacity: 0.75; }
+  19.32%, 32.20% { color: rgb(24 24 27); opacity: 1; }
+  35.41%, 100% { color: rgb(113 113 122); opacity: 0.75; }
+}
+@keyframes hiw-text-3 {
+  0%, 35.41% { color: rgb(113 113 122); opacity: 0.75; }
+  38.64%, 53.77% { color: rgb(24 24 27); opacity: 1; }
+  59.54%, 100% { color: rgb(113 113 122); opacity: 0.75; }
+}
+@keyframes hiw-text-4 {
+  0%, 59.54% { color: rgb(113 113 122); opacity: 0.75; }
+  65.33%, 88.45% { color: rgb(24 24 27); opacity: 1; }
+  94.22%, 100% { color: rgb(113 113 122); opacity: 0.75; }
+}
+
+/* Defaults (paused) */
+.demo-bike { filter: grayscale(1) brightness(0.88) blur(14px); will-change: filter; animation: demo-bike-grayscale 11s cubic-bezier(0.4, 0, 0.2, 1) infinite both paused; }
+.demo-reveal { opacity: 0; will-change: opacity; animation: demo-reveal 11s cubic-bezier(0.4, 0, 0.2, 1) infinite both paused; }
+.demo-progress { width: 0%; background: linear-gradient(90deg, #4285F4, #818CF8); animation: demo-progress 11s linear infinite both paused; }
+.demo-progress-shimmer { opacity: 0; background: linear-gradient(90deg, transparent 0%, rgba(253, 230, 138, 0.75) 50%, transparent 100%); transform: translateX(-100%); animation: demo-shimmer-fade 11s linear infinite both paused, progress-shimmer 1.8s ease-in-out infinite paused; pointer-events: none; }
+.demo-chip { opacity: 0; will-change: transform, opacity; animation: 11s linear infinite both paused; }
+.demo-chip-1 { animation-name: demo-chip-1; }
+.demo-chip-2 { animation-name: demo-chip-2; }
+.demo-chip-3 { animation-name: demo-chip-3; }
+.demo-funded-badge { opacity: 0; will-change: transform, opacity; animation: demo-badge 11s linear infinite both paused; }
+/*
+ * Hidden beacon for the in-card canvas-confetti. Shares the demo's
+ * paused/gated 11s clock; the negative delay phase-shifts it so its
+ * animationiteration fires on the funded beat (~68% of the loop, as the
+ * "fully funded" badge lands), staying in sync through scroll pauses.
+ */
+.demo-confetti-beacon { position: absolute; width: 0; height: 0; opacity: 0; animation: demo-reveal 11s linear infinite both paused; animation-delay: -3.51s; }
+.hiw-num { background-color: #fff; color: rgb(82 82 91); box-shadow: inset 0 0 0 1px rgb(228 228 231); will-change: background-color, color, transform, box-shadow; animation-duration: 11s; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); animation-iteration-count: infinite; animation-fill-mode: both; animation-play-state: paused; }
+.hiw-num-1 { animation-name: hiw-num-1; }
+.hiw-num-2 { animation-name: hiw-num-2; }
+.hiw-num-3 { animation-name: hiw-num-3; }
+.hiw-num-4 { animation-name: hiw-num-4; }
+.hiw-text { color: rgb(113 113 122); opacity: 0.75; animation-duration: 11s; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); animation-iteration-count: infinite; animation-fill-mode: both; animation-play-state: paused; }
+.hiw-text-1 { animation-name: hiw-text-1; }
+.hiw-text-2 { animation-name: hiw-text-2; }
+.hiw-text-3 { animation-name: hiw-text-3; }
+.hiw-text-4 { animation-name: hiw-text-4; }
+
+/* Run everything once the section is in view */
+[data-play="play"] .demo-bike,
+[data-play="play"] .demo-reveal,
+[data-play="play"] .demo-progress,
+[data-play="play"] .demo-progress-shimmer,
+[data-play="play"] .demo-chip,
+[data-play="play"] .demo-funded-badge,
+[data-play="play"] .demo-confetti-beacon,
+[data-play="play"] .hiw-num,
+[data-play="play"] .hiw-text {
+  animation-play-state: running;
+}
+
+/* Long-form MDX guide content. Tailwind v4 preflight strips list and
+   heading styles, so MDX needs explicit typography here. */
+.prose-giftaro h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: rgb(24 24 27);
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+.prose-giftaro h3 {
+  font-size: 1.2rem;
+  line-height: 1.3;
+  font-weight: 600;
+  color: rgb(24 24 27);
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+.prose-giftaro p { margin: 0; }
+.prose-giftaro a {
+  color: rgb(37 99 235);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-giftaro a:hover { color: rgb(29 78 216); }
+.prose-giftaro strong { font-weight: 600; color: rgb(24 24 27); }
+.prose-giftaro ul,
+.prose-giftaro ol {
+  margin: 0;
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.prose-giftaro ul { list-style: disc; }
+.prose-giftaro ol { list-style: decimal; }
+.prose-giftaro li { padding-left: 0.25rem; }
+.prose-giftaro blockquote {
+  border-left: 3px solid rgb(212 212 216);
+  padding-left: 1rem;
+  font-style: italic;
+  color: rgb(82 82 91);
+}
+.prose-giftaro hr {
+  border: 0;
+  border-top: 1px solid rgb(228 228 231);
+  margin: 2.5rem 0;
+}
+.prose-giftaro code {
+  font-size: 0.9em;
+  background: rgb(244 244 245);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+}
+@media (prefers-color-scheme: dark) {
+  .prose-giftaro h2,
+  .prose-giftaro h3,
+  .prose-giftaro strong { color: rgb(244 244 245); }
+  .prose-giftaro a { color: rgb(96 165 250); }
+  .prose-giftaro a:hover { color: rgb(147 197 253); }
+  .prose-giftaro blockquote {
+    border-left-color: rgb(63 63 70);
+    color: rgb(161 161 170);
+  }
+  .prose-giftaro hr { border-top-color: rgb(39 39 42); }
+  .prose-giftaro code { background: rgb(39 39 42); }
+}
